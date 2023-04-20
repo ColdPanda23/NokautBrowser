@@ -51,6 +51,7 @@ public class OfferService : IOfferService
             {
                 var update = new OfferUpdate
                 {
+                    UpdatedOfferId = ObjectId.GenerateNewId().ToString(),
                     OfferId = offer.Id,
                     OfferTitle = offer.Title,
                     OldPrice = offer.Price,
@@ -98,8 +99,16 @@ public class OfferService : IOfferService
     
     public async Task<List<ScrapedOffer>> GetAllOffersBySearchPhrase(string searchPhrase)
     {
-        await UpdateOffers();
-        await UpdatePriceHistory();
+        try
+        {
+            await UpdateOffers();
+            await UpdatePriceHistory();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
         var database = _databaseService.ConnectToDatabase();
         var collection = database.GetCollection<ScrapedOffer>("Offers");
         var filter = Builders<ScrapedOffer>.Filter.Eq("SearchPhrase", searchPhrase);
